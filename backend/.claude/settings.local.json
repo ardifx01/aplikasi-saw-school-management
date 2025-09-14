@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/arthur/Documents/repos/aplikasi-saw-school-management/**)",
+      "Bash(npm install:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm test)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

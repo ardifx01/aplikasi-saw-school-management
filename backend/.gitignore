@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Logs
+*.log
+
+# Runtime data
+*.pid
+*.seed
+*.pid.lock
+
+# Docker
+docker-compose.override.yml
+
+# IDEs
+.vscode/
+.idea/
+
+# OS generated files
+Thumbs.db
+.DS_Store
+
+# Build outputs
+dist/
+build/
+
+# Temporary files
+*.tmp
+*.temp
+
+# NPM
+npm-debug.log*
+.npm/
+
+# TypeScript
+*.tsbuildinfo
