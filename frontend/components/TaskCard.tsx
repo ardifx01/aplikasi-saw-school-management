@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Task } from '../types/task'
+import { Task, Subtask } from '../types/task'
+import SubtaskDetailModal from './SubtaskDetailModal'
 
 interface TaskCardProps {
   task: Task
@@ -14,6 +15,8 @@ interface TaskCardProps {
 
 export default function TaskCard({ task, onDragStart, onEdit, onView, onAddSubtask, onDelete }: TaskCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isSubtaskModalOpen, setIsSubtaskModalOpen] = useState(false)
+  const [selectedSubtask, setSelectedSubtask] = useState<Subtask | null>(null)
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -34,14 +37,16 @@ export default function TaskCard({ task, onDragStart, onEdit, onView, onAddSubta
 
   return (
     <div 
+      id={`task-card-${task.id}`}
       className="bg-gray-750 rounded-lg shadow p-4 cursor-move hover:bg-gray-700 transition-colors"
       draggable
       onDragStart={onDragStart}
     >
       <div className="flex justify-between items-start">
-        <h3 className="font-medium text-white mb-2">{task.title}</h3>
+        <h3 id={`task-title-${task.id}`} className="font-medium text-white mb-2">{task.title}</h3>
         <div className="relative">
           <button 
+            id={`task-menu-button-${task.id}`}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="text-gray-400 hover:text-white p-1 rounded-full"
           >
@@ -94,15 +99,15 @@ export default function TaskCard({ task, onDragStart, onEdit, onView, onAddSubta
       </div>
       
       {task.description && (
-        <p className="text-gray-400 text-sm mb-3 line-clamp-2">{task.description}</p>
+        <p id={`task-description-${task.id}`} className="text-gray-400 text-sm mb-3 line-clamp-2">{task.description}</p>
       )}
       
       <div className="flex flex-wrap gap-1 mb-3">
-        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
+        <span id={`task-priority-${task.id}`} className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
           {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
         </span>
-        {task.tags.map(tag => (
-          <span key={tag} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-900 text-blue-300">
+        {task.tags.map((tag, index) => (
+          <span key={tag} id={`task-tag-${task.id}-${index}`} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-900 text-blue-300">
             {tag}
           </span>
         ))}
@@ -114,24 +119,52 @@ export default function TaskCard({ task, onDragStart, onEdit, onView, onAddSubta
             <span>Subtasks</span>
             <span>{completedSubtasks}/{totalSubtasks}</span>
           </div>
-          <div className="w-full bg-gray-700 rounded-full h-1.5">
+          <div className="w-full bg-gray-700 rounded-full h-1.5 mb-2">
             <div 
               className="bg-blue-600 h-1.5 rounded-full" 
               style={{ width: `${totalSubtasks ? (completedSubtasks / totalSubtasks) * 100 : 0}%` }}
             ></div>
+          </div>
+          <div className="space-y-1 max-h-32 overflow-y-auto">
+            {task.subtasks.map(subtask => (
+              <div key={subtask.id} id={`subtask-${subtask.id}`} className="flex items-center text-xs text-gray-300">
+                <input
+                  id={`subtask-checkbox-${subtask.id}`}
+                  type="checkbox"
+                  checked={subtask.completed}
+                  readOnly
+                  className="h-3 w-3 mr-2 rounded text-blue-500 focus:ring-blue-400"
+                />
+                <span 
+                  id={`subtask-title-${subtask.id}`} 
+                  className={`cursor-pointer hover:underline ${subtask.completed ? 'line-through text-gray-500' : ''}`}
+                  onClick={() => {
+                    setSelectedSubtask(subtask)
+                    setIsSubtaskModalOpen(true)
+                  }}
+                >
+                  {subtask.title}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       )}
       
       <div className="flex justify-between items-center text-xs text-gray-400">
         <div className="flex items-center">
-          <div className="h-6 w-6 rounded-full bg-gray-700 flex items-center justify-center mr-2">
+          <div id={`task-assignee-avatar-${task.id}`} className="h-6 w-6 rounded-full bg-gray-700 flex items-center justify-center mr-2">
             <span className="text-xs font-medium">{task.assignee.split(' ').map(n => n[0]).join('').toUpperCase()}</span>
           </div>
-          <span>{task.assignee}</span>
+          <span id={`task-assignee-${task.id}`}>{task.assignee}</span>
         </div>
-        <span>{formatDate(task.dueDate)}</span>
+        <span id={`task-due-date-${task.id}`}>{formatDate(task.dueDate)}</span>
       </div>
+      <SubtaskDetailModal 
+        isOpen={isSubtaskModalOpen}
+        onClose={() => setIsSubtaskModalOpen(false)}
+        subtask={selectedSubtask}
+      />
     </div>
   )
 }
